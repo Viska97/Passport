@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Passport</string>
+    <string name="navigation_drawer_open">Открыть меню</string>
+    <string name="navigation_drawer_close">Закрыть меню</string>
+    <string name="nav_header_title">Пользователь</string>
+    <string name="nav_header_subtitle">Пользователь</string>
+    <string name="nav_header_desc">Заголовок</string>
+    <string name="action_settings">Настройки</string>
+    <string name="change_password">Сменить пароль</string>
+    <string name="users_list">Список пользователей</string>
+    <string name="home">Главная</string>
+    <string name="help">Помощь</string>
+    <string name="about">О приложении</string>
+    <string name="exit">Выход</string>
+</resources>
