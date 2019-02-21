@@ -12,4 +12,8 @@
     <string name="help">Help</string>
     <string name="about">About</string>
     <string name="exit">Exit</string>
+    <string name="log_in">Log in</string>
+    <string name="password">Password</string>
+    <string name="title_activity_encrypt">EncryptActivity</string>
+
 </resources>
