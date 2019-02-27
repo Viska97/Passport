@@ -1,13 +1,14 @@
 package org.visapps.passport.repository
 
+import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.room.Room
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.withContext
 import org.visapps.passport.PassportApp
 import org.visapps.passport.data.AppDatabase
 import org.visapps.passport.data.User
+import org.visapps.passport.util.RequestResult
 import org.visapps.passport.util.UserState
 import java.io.File
 
@@ -39,8 +40,8 @@ class UserRepository {
         return null
     }
 
-    suspend fun logIn(name : String, password: String) : Boolean {
-        val user = withContext(Dispatchers.IO){database?.userDao()?.getUserByName(name)}
+    suspend fun logIn(username : String, password: String) : RequestResult {
+        val user = withContext(Dispatchers.IO){database?.userDao()?.getUserByName(username)}
         user?.let{
             if(it.password.equals(password)){
                 userId = it.id
@@ -50,10 +51,11 @@ class UserRepository {
                 else{
                     userStatus.postValue(UserState.USER)
                 }
-                return true
+                return RequestResult.SUCCESS
             }
+            return RequestResult.FAILURE
         }
-        return false
+        return RequestResult.NOT_FOUND
     }
 
     fun logOut() {
@@ -74,6 +76,7 @@ class UserRepository {
             database = Room.databaseBuilder(PassportApp.instance.applicationContext, AppDatabase::class.java, tempfile.absolutePath).build()
         }
         userStatus.postValue(UserState.NOT_AUTHENTICATED)
+        Log.i(TAG, "Database decrypted")
     }
 
     suspend fun closeDatabase() = withContext(Dispatchers.IO) {
@@ -83,6 +86,7 @@ class UserRepository {
             passphrase = ""
             userId = null
             userStatus.postValue(UserState.NOT_DECRYPTED)
+            Log.i(TAG, "Database encrypted")
         }
     }
 
@@ -97,6 +101,7 @@ class UserRepository {
 
     companion object {
 
+        private val TAG = UserRepository::class.java.name
         private const val DATAFILE_NAME = "passport.db"
         private const val TEMPFILE_NAME = "temp.db"
 

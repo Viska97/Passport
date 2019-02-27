@@ -11,7 +11,6 @@ import org.visapps.passport.R
 import kotlinx.android.synthetic.main.activity_encrypt.*
 import kotlinx.android.synthetic.main.content_encrypt.*
 import org.visapps.passport.ui.viewmodel.EncryptActivityViewModel
-import org.visapps.passport.ui.viewmodel.MainActivityViewModel
 import org.visapps.passport.util.toVisibility
 
 class EncryptActivity : AppCompatActivity() {

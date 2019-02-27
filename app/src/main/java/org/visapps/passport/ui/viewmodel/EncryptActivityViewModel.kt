@@ -30,7 +30,6 @@ class EncryptActivityViewModel : ViewModel(), CoroutineScope {
         this.launch(context = coroutineContext) {
             loading.postValue(true)
             repository.initDatabase(password)
-            loading.postValue(false)
             finish.postValue(Unit)
         }
     }

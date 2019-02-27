@@ -22,7 +22,7 @@ class MainActivityViewModel() : ViewModel(), CoroutineScope {
 
     val userStatus = repository.userStatus
     val user = MediatorLiveData<User>()
-    val finish = SingleLiveEvent<Unit>()
+    val logOut = SingleLiveEvent<Unit>()
 
     private var job = Job()
 
@@ -42,10 +42,10 @@ class MainActivityViewModel() : ViewModel(), CoroutineScope {
         }
     }
 
-    fun closeDatabase() {
+    fun logOut() {
         this.launch(context = coroutineContext) {
-            repository.closeDatabase()
-            finish.postValue(Unit)
+            repository.logOut()
+            logOut.postValue(Unit)
         }
     }
 

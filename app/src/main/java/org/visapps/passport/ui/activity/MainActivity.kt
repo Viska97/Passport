@@ -1,5 +1,6 @@
 package org.visapps.passport.ui.activity
 
+import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
@@ -23,8 +24,6 @@ import org.visapps.passport.util.UserState
 
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
 
-    private var forceExit = false
-
     private lateinit var viewModel: MainActivityViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -47,27 +46,21 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         })
         viewModel.userStatus.observe(this, Observer<UserState>{
             when(it){
-                UserState.FIRST_RUN -> openDecrypt()
-                UserState.NOT_DECRYPTED -> openDecrypt()
-                UserState.NOT_AUTHENTICATED -> openAuth()
-                UserState.USER -> type.text = "USER"
-                UserState.ADMIN -> type.text = "ADMIN"
-                else -> {}
+                UserState.USER -> type.text = getString(R.string.user)
+                UserState.ADMIN -> type.text = getString(R.string.admin)
+                else -> openSplashActivity()
             }
         })
-        viewModel.finish.observe(this, Observer {
+        viewModel.logOut.observe(this, Observer {
+            setResult(Activity.RESULT_OK)
             finish()
         })
     }
 
-    private fun openDecrypt() {
-        val intent = Intent(this, EncryptActivity::class.java)
+    private fun openSplashActivity() {
+        val intent = Intent(this, SplashActivity::class.java)
         startActivity(intent)
         finish()
-    }
-
-    private fun openAuth() {
-
     }
 
     override fun onBackPressed() {
@@ -90,7 +83,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
             }
             R.id.nav_exit -> {
-                viewModel.closeDatabase()
+                viewModel.logOut()
             }
             R.id.nav_about -> {
 

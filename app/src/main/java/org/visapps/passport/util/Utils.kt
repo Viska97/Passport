@@ -10,6 +10,12 @@ enum class UserState{
     ADMIN
 }
 
+enum class RequestResult{
+    SUCCESS,
+    FAILURE,
+    NOT_FOUND
+}
+
 fun toVisibility(constraint : Boolean): Int {
     return if (constraint) {
         View.VISIBLE
