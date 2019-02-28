@@ -3,6 +3,7 @@ package org.visapps.passport.util
 import android.view.View
 
 enum class UserState{
+    QUIT,
     FIRST_RUN,
     NOT_DECRYPTED,
     NOT_AUTHENTICATED,

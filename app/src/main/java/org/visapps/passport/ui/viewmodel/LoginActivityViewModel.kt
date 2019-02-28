@@ -13,13 +13,13 @@ import kotlin.coroutines.CoroutineContext
 
 class LoginActivityViewModel : ViewModel(), CoroutineScope {
 
-    val loading = MutableLiveData<Boolean>()
-    val message = SingleLiveEvent<Unit>()
-    val alert = SingleLiveEvent<Int>()
-    val result = SingleLiveEvent<Boolean>()
-    var attemptsCount = 3
-
     private val repository : UserRepository = UserRepository.get()
+
+    val loading = MutableLiveData<Boolean>()
+    val invalidUsername = SingleLiveEvent<Unit>()
+    val invalidPassword = SingleLiveEvent<Int>()
+    val result = SingleLiveEvent<Unit>()
+    var attemptsCount = 3
 
     override val coroutineContext: CoroutineContext
         get() = job + Dispatchers.Main
@@ -31,21 +31,26 @@ class LoginActivityViewModel : ViewModel(), CoroutineScope {
     }
 
     fun logIn(username : String, password : String) {
+        if(username.isEmpty()){
+            return
+        }
         this.launch(context = coroutineContext) {
             loading.postValue(true)
-            attemptsCount --
             val authResult = repository.logIn(username, password)
             when(authResult){
-                RequestResult.SUCCESS -> result.postValue(true)
-                RequestResult.NOT_FOUND -> message.postValue(Unit)
+                RequestResult.SUCCESS -> result.postValue(Unit)
+                RequestResult.NOT_FOUND -> {
+                    loading.postValue(false)
+                    invalidUsername.postValue(Unit)}
                 RequestResult.FAILURE -> {
                     attemptsCount --
                     if(attemptsCount > 0){
                         loading.postValue(false)
-                        alert.postValue(attemptsCount)
+                        invalidPassword.postValue(attemptsCount)
                     }
                     else{
-                        result.postValue(false)
+                        repository.closeDatabase()
+                        result.postValue(Unit)
                     }
                 }
             }

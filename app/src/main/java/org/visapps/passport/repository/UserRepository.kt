@@ -45,7 +45,7 @@ class UserRepository {
         user?.let{
             if(it.password.equals(password)){
                 userId = it.id
-                if(it.id == 0){
+                if(it.id == 1){
                     userStatus.postValue(UserState.ADMIN)
                 }
                 else{

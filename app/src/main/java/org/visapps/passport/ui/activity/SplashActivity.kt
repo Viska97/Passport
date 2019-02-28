@@ -3,6 +3,7 @@ package org.visapps.passport.ui.activity
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
+import android.os.Handler
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.Observer
@@ -18,9 +19,11 @@ class SplashActivity : AppCompatActivity() {
         const val DECRYPT = 2
         const val LOGIN = 3
         const val MAIN = 4
+        val TAG = SplashActivity::class.java.name
     }
 
     private lateinit var viewModel : SplashActivityViewModel
+    private var encryptInProgress = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -28,6 +31,7 @@ class SplashActivity : AppCompatActivity() {
         viewModel = ViewModelProviders.of(this).get(SplashActivityViewModel::class.java)
         viewModel.userStatus.observe(this, Observer<UserState>{
             when(it){
+                UserState.QUIT -> {}
                 UserState.FIRST_RUN -> openEncryptActivity()
                 UserState.NOT_DECRYPTED -> openDecryptActivity()
                 UserState.NOT_AUTHENTICATED -> openLoginActivity()
@@ -37,43 +41,43 @@ class SplashActivity : AppCompatActivity() {
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        if(requestCode == ENCRYPT || requestCode == DECRYPT || requestCode == LOGIN || requestCode == MAIN){
-            if(resultCode == Activity.RESULT_OK){
-                Log.i("Vasily", "result ok")
-            }
-            else{
-                Log.i("Vasily", "result finish")
-                finish()
-            }
-        }
-        else{
+        if((requestCode == ENCRYPT ||
+            requestCode == DECRYPT ||
+            requestCode == LOGIN ||
+            requestCode == MAIN)
+            && resultCode != Activity.RESULT_OK){
+            viewModel.quit()
             finish()
         }
     }
 
     override fun onDestroy() {
-        viewModel.closeDatabase()
+        if(isFinishing){
+            viewModel.closeDatabase()
+        }
         super.onDestroy()
     }
 
     private fun openEncryptActivity() {
+        Log.i(TAG, "opening encrypt activity")
         val intent = Intent(this, EncryptActivity::class.java)
-        intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
-        overridePendingTransition(0, 0);
         startActivityForResult(intent, ENCRYPT)
     }
 
     private fun openDecryptActivity() {
+        Log.i(TAG, "opening decrypt activity")
         val intent = Intent(this, EncryptActivity::class.java)
         startActivityForResult(intent, DECRYPT)
     }
 
     private fun openLoginActivity() {
+        Log.i(TAG, "opening login activity")
         val intent = Intent(this, LoginActivity::class.java)
         startActivityForResult(intent, LOGIN)
     }
 
     private fun openMainActivity() {
+        Log.i(TAG, "opening main activity")
         val intent = Intent(this, MainActivity::class.java)
         startActivityForResult(intent, MAIN)
     }

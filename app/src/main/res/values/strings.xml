@@ -15,7 +15,8 @@
     <string name="log_in">Log in</string>
     <string name="username">Username</string>
     <string name="password">Password</string>
-    <string name="auth_failed">Login failed. The username or password you entered is incorrect.</string>
+    <string name="invalid_password">Login failed. Password is invalid. Attempts left: %1$d</string>
+    <string name="invalid_username">Login failed. Invalid username</string>
     <string name="ok">OK</string>
     <string name="user">User</string>
     <string name="admin">Admin</string>

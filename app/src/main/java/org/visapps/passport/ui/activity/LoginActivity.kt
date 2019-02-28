@@ -26,21 +26,26 @@ class LoginActivity : AppCompatActivity() {
             fieldlayout.visibility = toVisibility(!it)
             progressBar.visibility = toVisibility(it)
         })
-        viewModel.message.observe(this, Observer<Unit> {
+        viewModel.invalidUsername.observe(this, Observer<Unit> {
             MaterialDialog(this).show {
-                message(R.string.auth_failed)
+                message(R.string.invalid_username)
                 positiveButton(R.string.ok)
             }
         })
-        viewModel.result.observe(this, Observer<Boolean>{
-            if(it) {
-                setResult(Activity.RESULT_OK)
+        viewModel.invalidPassword.observe(this, Observer<Int>{
+            MaterialDialog(this).show {
+                message(text = getString(R.string.invalid_password, it))
+                positiveButton(R.string.ok)
             }
+        })
+        viewModel.result.observe(this, Observer<Unit>{
+            setResult(Activity.RESULT_OK)
             finish()
         })
         loginbutton.setOnClickListener {
             viewModel.logIn(login.text.toString(), password.text.toString())
         }
     }
+
 
 }
