@@ -87,9 +87,7 @@ class UserRepository {
                     return PasswordChangeResult.INVALID_CURRENT
                 }
                 val limited = it.limited
-                Log.i(TAG, limited.toString())
                 if(!checkPassword(newPassword, limited)){
-                    Log.i(TAG, "PasswordChangeResult.INVALID_NEW")
                     return PasswordChangeResult.INVALID_NEW
                 }
                 it.password = newPassword
@@ -98,6 +96,28 @@ class UserRepository {
             }
         }
         return PasswordChangeResult.INVALID_CURRENT
+    }
+
+    suspend fun changePassword(newPassword : String) : PasswordChangeResult {
+        userId?.let {
+            val user  = withContext(Dispatchers.IO) {database?.userDao()?.getUserById(it)}
+            user?.let {
+                val limited = it.limited
+                if(!checkPassword(newPassword, limited)){
+                    return PasswordChangeResult.INVALID_NEW
+                }
+                it.password = newPassword
+                withContext(Dispatchers.IO) {database?.userDao()?.update(it)}
+                if(it.id == 1){
+                    userStatus.postValue(UserState.ADMIN)
+                }
+                else{
+                    userStatus.postValue(UserState.USER)
+                }
+                return PasswordChangeResult.SUCCESS
+            }
+        }
+        return PasswordChangeResult.INVALID_NEW
     }
 
     fun getUsers() : LiveData<List<User>> {
@@ -119,7 +139,11 @@ class UserRepository {
                     return RequestResult.BLOCKED
                 }
                 userId = it.id
-                if(it.id == 1){
+                val limited = it.limited
+                if(!checkPassword(it.password, limited)){
+                    userStatus.postValue(UserState.NEED_CHANGE)
+                }
+                else if(it.id == 1){
                     userStatus.postValue(UserState.ADMIN)
                 }
                 else{

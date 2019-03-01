@@ -49,4 +49,7 @@
     <string name="development">Vasily M (ИДб-15-14, вариант 14)</string>
     <string name="viewongithub">Посмотреть профиль на Github</string>
     <string name="quit">Выйти из профиля?</string>
+    <string name="change">Сменить</string>
+    <string name="title_activity_change_password">Смена пароля</string>
+    <string name="need_change_password">Необходимо сменить пароль!</string>
 </resources>

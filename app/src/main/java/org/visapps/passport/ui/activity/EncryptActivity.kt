@@ -54,6 +54,9 @@ class EncryptActivity : AppCompatActivity() {
         loginbutton.setOnClickListener {
             viewModel.process(password.text.toString())
         }
+        exit.setOnClickListener {
+            finish()
+        }
     }
 
 }

@@ -24,6 +24,7 @@ class SplashActivity : AppCompatActivity() {
         viewModel = ViewModelProviders.of(this).get(SplashActivityViewModel::class.java)
         viewModel.userStatus.observe(this, Observer<UserState>{
             when(it){
+                UserState.NEED_CHANGE -> {openChangeActivity()}
                 UserState.IN_PROGRESS -> {}
                 UserState.QUIT -> finish()
                 UserState.FIRST_RUN -> openEncryptActivity()
@@ -39,6 +40,12 @@ class SplashActivity : AppCompatActivity() {
             viewModel.closeDatabase()
         }
         super.onDestroy()
+    }
+
+    private fun openChangeActivity() {
+        Log.i(TAG, "opening change activity")
+        val intent = Intent(this, ChangePassword::class.java)
+        startActivity(intent)
     }
 
     private fun openEncryptActivity() {

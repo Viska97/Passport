@@ -6,6 +6,7 @@ import android.view.View
 import android.widget.EditText
 
 enum class UserState{
+    NEED_CHANGE,
     QUIT,
     IN_PROGRESS,
     FIRST_RUN,

@@ -51,6 +51,9 @@ class LoginActivity : AppCompatActivity() {
         loginbutton.setOnClickListener {
             viewModel.logIn(login.text.toString(), password.text.toString())
         }
+        exit.setOnClickListener {
+            finish()
+        }
     }
 
     override fun onDestroy() {

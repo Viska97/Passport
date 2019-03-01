@@ -24,6 +24,8 @@
         lowercase, uppercase letters and an arithmetic operation sign)
     </string>
     <string name="password_changed">Password changed!</string>
+    <string name="need_change_password">Need to change password!</string>
+    <string name="change">Change</string>
     <string name="user_blocked">User blocked!</string>
     <string name="set_master_password">Set master password</string>
     <string name="enter_master_password">Enter master password</string>
@@ -48,5 +50,6 @@
     <string name="title_activity_about">About application</string>
     <string name="development">Vasily M (IDB-15-14, variant 14)</string>
     <string name="viewongithub">View project on Github</string>
+    <string name="title_activity_change_password">Change password</string>
 
 </resources>

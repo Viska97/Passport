@@ -52,6 +52,14 @@
                 android:layout_marginTop="8dp"
                 android:text="@string/log_in" />
 
+        <Button
+                android:id="@+id/exit"
+                style="@style/Widget.AppCompat.Button.Colored"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="@string/exit" />
+
     </LinearLayout>
 
 
