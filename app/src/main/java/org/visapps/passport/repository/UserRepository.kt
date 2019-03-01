@@ -28,6 +28,7 @@ import kotlinx.coroutines.launch
 import org.visapps.passport.util.PasswordChangeResult
 import org.visapps.passport.util.checkPassword
 import javax.crypto.CipherInputStream
+import javax.crypto.spec.IvParameterSpec
 
 
 class UserRepository {
@@ -216,12 +217,12 @@ class UserRepository {
             val fis = FileInputStream(tempfile)
             val fos = FileOutputStream(datafile, false)
             var key = (SALT + passphrase).toByteArray(Charset.forName("UTF-8"))
-            val sha = MessageDigest.getInstance("MD5")
-            key = sha.digest(key)
+            val md5 = MessageDigest.getInstance("MD5")
+            key = md5.digest(key)
             key = Arrays.copyOf(key, 16)
             val sks = SecretKeySpec(key, "AES")
-            val cipher = Cipher.getInstance("AES")
-            cipher.init(Cipher.ENCRYPT_MODE, sks)
+            val cipher = Cipher.getInstance("AES/CBC/PKCS5Padding")
+            cipher.init(Cipher.ENCRYPT_MODE, sks, IvParameterSpec(ByteArray(16)))
             val cos = CipherOutputStream(fos, cipher)
             var b: Int? = null
             val d = ByteArray(8)
@@ -246,12 +247,12 @@ class UserRepository {
             val fis = FileInputStream(datafile)
             val fos = FileOutputStream(tempfile, false)
             var key = (SALT + passphrase).toByteArray(Charset.forName("UTF-8"))
-            val sha = MessageDigest.getInstance("MD5")
-            key = sha.digest(key)
+            val md5 = MessageDigest.getInstance("MD5")
+            key = md5.digest(key)
             key = Arrays.copyOf(key, 16)
             val sks = SecretKeySpec(key, "AES")
-            val cipher = Cipher.getInstance("AES")
-            cipher.init(Cipher.DECRYPT_MODE, sks)
+            val cipher = Cipher.getInstance("AES/CBC/PKCS5Padding")
+            cipher.init(Cipher.DECRYPT_MODE, sks, IvParameterSpec(ByteArray(16)))
             val cis = CipherInputStream(fis, cipher)
             var b: Int? = null
             val d = ByteArray(8)

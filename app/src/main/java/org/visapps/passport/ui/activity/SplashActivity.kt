@@ -36,7 +36,7 @@ class SplashActivity : AppCompatActivity() {
 
     override fun onDestroy() {
         if(isFinishing){
-
+            viewModel.closeDatabase()
         }
         super.onDestroy()
     }

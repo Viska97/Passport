@@ -39,7 +39,7 @@
     <string name="new_password">Новый пароль</string>
     <string name="repeat_password">Повторите пароль</string>
     <string name="admin_access">Эта функция доступна только администратору</string>
-    <string name="title_activity_encrypt">Шифрование</string>
+    <string name="title_activity_encrypt">Ввод мастер пароля</string>
     <string name="title_activity_splash">Passport</string>
     <string name="title_activity_login">Авторизация</string>
     <string name="set_master_password">Установите мастер-пароль</string>
