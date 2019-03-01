@@ -38,6 +38,12 @@ class LoginActivity : AppCompatActivity() {
                 positiveButton(R.string.ok)
             }
         })
+        viewModel.userBlocked.observe(this, Observer<Unit> {
+            MaterialDialog(this).show {
+                message(R.string.user_blocked)
+                positiveButton(R.string.ok)
+            }
+        })
         viewModel.result.observe(this, Observer<Unit>{
             setResult(Activity.RESULT_OK)
             finish()
@@ -47,5 +53,8 @@ class LoginActivity : AppCompatActivity() {
         }
     }
 
+    override fun onDestroy() {
+        super.onDestroy()
+    }
 
 }

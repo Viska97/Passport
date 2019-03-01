@@ -13,4 +13,40 @@
     <string name="help">Помощь</string>
     <string name="about">О приложении</string>
     <string name="exit">Выход</string>
+    <string name="log_in">Войти</string>
+    <string name="username">Имя пользователя</string>
+    <string name="password">Пароль</string>
+    <string name="invalid_password">Войти не удалось. Неверный пароль. Осталось попыток: %1$</string>
+    <string name="invalid_username">Войти не удалось. Пользователь не существует</string>
+    <string name="invalid_current_password">Текущий пароль введен неверно</string>
+    <string name="passwords_not_match">Пароли не совпадают</string>
+    <string name="weak_password">Пароль не соответствует требованиям безопасности (длина от 8 до 50 символов)</string>
+    <string name="limited_password">Пароль не соответствует требованиям для вашей учетной записи (должен содержать
+                 строчные, прописные буквы и знак арифметической операции)
+    </string>
+    <string name="password_changed">Пароль изменен</string>
+    <string name="user_blocked">Пользователь заблокирован!</string>
+    <string name="add">Добавить пользователя</string>
+    <string name="ok">ОК</string>
+    <string name="cancel">Отмена</string>
+    <string name="user">Пользователь</string>
+    <string name="admin">Администратор</string>
+    <string name="welcome">Добро пожаловать,%1$s!</string>
+    <string name="password_limit">Ограничение на пароль</string>
+    <string name="username_exists">Имя пользователя занято</string>
+    <string name="user_added">Пользователь добавлен</string>
+    <string name="old_password">Старый пароль</string>
+    <string name="new_password">Новый пароль</string>
+    <string name="repeat_password">Повторите пароль</string>
+    <string name="admin_access">Эта функция доступна только администратору</string>
+    <string name="title_activity_encrypt">Шифрование</string>
+    <string name="title_activity_splash">Passport</string>
+    <string name="title_activity_login">Авторизация</string>
+    <string name="set_master_password">Установите мастер-пароль</string>
+    <string name="enter_master_password">Введите мастер-пароль</string>
+    <string name="invalid_master_password">Неверный мастер-пароль!</string>
+    <string name="title_activity_about">О приложении</string>
+    <string name="development">Vasily M (ИДб-15-14, вариант 14)</string>
+    <string name="viewongithub">Посмотреть профиль на Github</string>
+    <string name="quit">Выйти из профиля?</string>
 </resources>

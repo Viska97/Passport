@@ -2,10 +2,13 @@ package org.visapps.passport.ui.fragment
 
 import androidx.lifecycle.ViewModelProviders
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.lifecycle.Observer
+import kotlinx.android.synthetic.main.home_fragment.*
 
 import org.visapps.passport.R
 
@@ -27,7 +30,10 @@ class HomeFragment : Fragment() {
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
         viewModel = ViewModelProviders.of(this).get(HomeViewModel::class.java)
-        // TODO: Use the ViewModel
+        viewModel.username.observe(this, Observer<String>{
+            Log.i("Vasily", "getString(R.string.welcome, it)")
+            message.text = getString(R.string.welcome, it)
+        })
     }
 
 }

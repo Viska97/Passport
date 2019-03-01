@@ -17,11 +17,36 @@
     <string name="password">Password</string>
     <string name="invalid_password">Login failed. Password is invalid. Attempts left: %1$d</string>
     <string name="invalid_username">Login failed. Invalid username</string>
+    <string name="invalid_current_password">Invalid current password</string>
+    <string name="passwords_not_match">Passwords not match</string>
+    <string name="weak_password">Password does not meet security requirements (length from 8 to 50 characters)</string>
+    <string name="limited_password">The password does not meet the requirements for your account (must contain
+        lowercase, uppercase letters and an arithmetic operation sign)
+    </string>
+    <string name="password_changed">Password changed!</string>
+    <string name="user_blocked">User blocked!</string>
+    <string name="set_master_password">Set master password</string>
+    <string name="enter_master_password">Enter master password</string>
+    <string name="invalid_master_password">Invalid master password</string>
+    <string name="add">Add user</string>
     <string name="ok">OK</string>
+    <string name="cancel">Cancel</string>
+    <string name="quit">Quit from profile?</string>
     <string name="user">User</string>
     <string name="admin">Admin</string>
-    <string name="title_activity_encrypt">EncryptActivity</string>
-    <string name="title_activity_splash">SplashActivity</string>
-    <string name="title_activity_login">Sign In</string>
+    <string name="welcome">Welcome, %1$s!</string>
+    <string name="password_limit">Password limit</string>
+    <string name="username_exists">Username exists</string>
+    <string name="user_added">User added</string>
+    <string name="old_password">Old password</string>
+    <string name="new_password">New password</string>
+    <string name="repeat_password">Repeat password</string>
+    <string name="admin_access">This feature is only available to the administrator</string>
+    <string name="title_activity_encrypt">Encryption</string>
+    <string name="title_activity_splash">Passport</string>
+    <string name="title_activity_login">Authorization</string>
+    <string name="title_activity_about">About application</string>
+    <string name="development">Vasily M (IDB-15-14, variant 14)</string>
+    <string name="viewongithub">View project on Github</string>
 
 </resources>

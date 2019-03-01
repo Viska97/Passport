@@ -1,8 +1,10 @@
 package org.visapps.passport.data
 
+import androidx.lifecycle.LiveData
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
+import androidx.room.Update
 
 @Dao
 interface UserDao {
@@ -15,5 +17,14 @@ interface UserDao {
 
     @Query("SELECT * FROM users WHERE name = :name")
     fun getUserByName(name : String) : User
+
+    @Query("SELECT * FROM users ORDER BY id ASC")
+    fun getUsers() : LiveData<List<User>>
+
+    @Query("SELECT name FROM users WHERE id = :id")
+    fun getUserName(id : Int) : LiveData<String>
+
+    @Update
+    fun update(user: User)
 
 }

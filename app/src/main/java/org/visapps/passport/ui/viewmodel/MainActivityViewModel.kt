@@ -3,10 +3,7 @@ package org.visapps.passport.ui.viewmodel
 import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 import org.visapps.passport.data.User
 import org.visapps.passport.repository.UserRepository
 import org.visapps.passport.util.SingleLiveEvent
@@ -43,7 +40,7 @@ class MainActivityViewModel() : ViewModel(), CoroutineScope {
     }
 
     fun logOut() {
-        this.launch(context = coroutineContext) {
+        GlobalScope.launch {
             repository.logOut()
             logOut.postValue(Unit)
         }

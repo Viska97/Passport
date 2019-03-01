@@ -2,13 +2,11 @@ package org.visapps.passport.ui.viewmodel
 
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 import org.visapps.passport.repository.UserRepository
 import org.visapps.passport.util.RequestResult
 import org.visapps.passport.util.SingleLiveEvent
+import org.visapps.passport.util.UserState
 import kotlin.coroutines.CoroutineContext
 
 class LoginActivityViewModel : ViewModel(), CoroutineScope {
@@ -18,6 +16,7 @@ class LoginActivityViewModel : ViewModel(), CoroutineScope {
     val loading = MutableLiveData<Boolean>()
     val invalidUsername = SingleLiveEvent<Unit>()
     val invalidPassword = SingleLiveEvent<Int>()
+    val userBlocked = SingleLiveEvent<Unit>()
     val result = SingleLiveEvent<Unit>()
     var attemptsCount = 3
 
@@ -42,7 +41,11 @@ class LoginActivityViewModel : ViewModel(), CoroutineScope {
                 RequestResult.NOT_FOUND -> {
                     loading.postValue(false)
                     invalidUsername.postValue(Unit)}
-                RequestResult.FAILURE -> {
+                RequestResult.BLOCKED -> {
+                    loading.postValue(false)
+                    userBlocked.postValue(Unit)
+                }
+                RequestResult.INVALID_PASSWORD -> {
                     attemptsCount --
                     if(attemptsCount > 0){
                         loading.postValue(false)
@@ -55,5 +58,12 @@ class LoginActivityViewModel : ViewModel(), CoroutineScope {
                 }
             }
         }
+    }
+
+    override fun onCleared() {
+        GlobalScope.launch {
+            repository.onQuitLogInState()
+        }
+        super.onCleared()
     }
 }

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" xmlns:app="http://schemas.android.com/apk/res-auto"
+        tools:context=".ui.fragment.AccountsFragment">
+
+    <TextView
+            android:text="@string/admin_access"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="22sp"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:id="@+id/alert"/>
+
+    <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/accounts_list"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scrollbars="vertical"
+            android:clipToPadding="false"
+            android:paddingBottom="88dp"
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"/>
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+            app:srcCompat="@drawable/ic_add_black_24dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|end"
+            android:layout_margin="@dimen/fab_margin"
+            android:tint="@android:color/white"
+            android:id="@+id/fab"/>
+
+</FrameLayout>

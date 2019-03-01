@@ -1,5 +1,6 @@
 package org.visapps.passport.ui.viewmodel
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations.switchMap
@@ -15,16 +16,7 @@ class SplashActivityViewModel : ViewModel() {
 
     private val quit = MutableLiveData<Boolean>()
 
-    val userStatus : LiveData<UserState> = switchMap(quit){
-        if(it){
-            val result = MutableLiveData<UserState>()
-            result.postValue(UserState.QUIT)
-            return@switchMap result
-        }
-        else {
-            repository.userStatus
-        }
-    }
+    val userStatus = repository.userStatus
 
 
     init {
@@ -35,10 +27,6 @@ class SplashActivityViewModel : ViewModel() {
         GlobalScope.launch {
             repository.closeDatabase()
         }
-    }
-
-    fun quit(){
-        quit.postValue(true)
     }
 
 }
