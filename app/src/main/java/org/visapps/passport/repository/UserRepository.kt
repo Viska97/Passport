@@ -196,21 +196,25 @@ class UserRepository {
             else{
                 val success = decryptDatabase()
                 if(success){
-                    database = Room.databaseBuilder(PassportApp.instance.applicationContext, AppDatabase::class.java, tempfile.absolutePath).build()
-                    database?.let {
-                        inMemoryDatabase = InMemoryDatabase(it.userDao().getAll())
+                    try{
+                        database = Room.databaseBuilder(PassportApp.instance.applicationContext, AppDatabase::class.java, tempfile.absolutePath).build()
+                        database?.let {
+                            inMemoryDatabase = InMemoryDatabase(it.userDao().getAll())
+                        }
+                        database?.close()
+                        encryptDatabase()
+                        userStatus.postValue(UserState.NOT_AUTHENTICATED)
+                        Log.i(TAG, "Database decrypted")
+                        return@withContext true
                     }
-                    database?.close()
-                    encryptDatabase()
-                    userStatus.postValue(UserState.NOT_AUTHENTICATED)
-                    Log.i(TAG, "Database decrypted")
-                    return@withContext true
+                    catch (e : Exception){
+                        tempfile.delete()
+                        Log.i(TAG, "Corrupted database file")
+                    }
                 }
-                else{
-                    userStatus.postValue(UserState.NOT_DECRYPTED)
-                    Log.i(TAG, "Database not decrypted")
-                    return@withContext false
-                }
+                userStatus.postValue(UserState.NOT_DECRYPTED)
+                Log.i(TAG, "Database not decrypted")
+                return@withContext false
             }
         }
     }
