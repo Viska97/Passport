@@ -53,8 +53,8 @@ class ChangePasswordViewModel : ViewModel(), CoroutineScope {
     fun logOut() {
         GlobalScope.launch {
             repository.logOut()
-            logOut.postValue(Unit)
         }
+        logOut.postValue(Unit)
     }
 
     override fun onCleared() {

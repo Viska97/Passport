@@ -254,7 +254,7 @@ class UserRepository {
             key = Arrays.copyOf(key, 16)
             val sks = SecretKeySpec(key, "AES")
             val cipher = Cipher.getInstance("AES/CBC/PKCS5Padding")
-            cipher.init(Cipher.ENCRYPT_MODE, sks, IvParameterSpec(ByteArray(16)))
+            cipher.init(Cipher.ENCRYPT_MODE, sks, IvParameterSpec(IV))
             val cos = CipherOutputStream(fos, cipher)
             var b: Int? = null
             val d = ByteArray(8)
@@ -284,7 +284,7 @@ class UserRepository {
             key = Arrays.copyOf(key, 16)
             val sks = SecretKeySpec(key, "AES")
             val cipher = Cipher.getInstance("AES/CBC/PKCS5Padding")
-            cipher.init(Cipher.DECRYPT_MODE, sks, IvParameterSpec(ByteArray(16)))
+            cipher.init(Cipher.DECRYPT_MODE, sks, IvParameterSpec(IV))
             val cis = CipherInputStream(fis, cipher)
             var b: Int? = null
             val d = ByteArray(8)
@@ -310,6 +310,7 @@ class UserRepository {
         private const val DATAFILE_NAME = "passport.db"
         private const val TEMPFILE_NAME = "temp.db"
         private const val SALT = "qK~r)Sg6dB3tzBoJtuCKT+#~m||"
+        private val IV = byteArrayOf(96, 55, 72, 66, 120, 126, 30, 19, 51, 48 , 52, 45, 44, 10,	22,	5)
 
         @Volatile
         private var instance: UserRepository? = null

@@ -38,7 +38,6 @@ class ChangePassword : AppCompatActivity() {
             password_layout.error = getString(R.string.limited_password)
         })
         viewModel.success.observe(this, Observer<Unit> {
-            setResult(Activity.RESULT_OK)
             finish()
         })
         change.setOnClickListener {
