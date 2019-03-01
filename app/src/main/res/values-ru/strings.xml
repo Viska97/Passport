@@ -16,7 +16,7 @@
     <string name="log_in">Войти</string>
     <string name="username">Имя пользователя</string>
     <string name="password">Пароль</string>
-    <string name="invalid_password">Войти не удалось. Неверный пароль. Осталось попыток: %1$</string>
+    <string name="invalid_password">Войти не удалось. Неверный пароль. Осталось попыток: %1$d</string>
     <string name="invalid_username">Войти не удалось. Пользователь не существует</string>
     <string name="invalid_current_password">Текущий пароль введен неверно</string>
     <string name="passwords_not_match">Пароли не совпадают</string>

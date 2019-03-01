@@ -37,4 +37,9 @@ class AccountsViewModel : ViewModel(), CoroutineScope {
         }
     }
 
+    override fun onCleared() {
+        job.cancel()
+        super.onCleared()
+    }
+
 }

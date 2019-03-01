@@ -16,6 +16,8 @@ import kotlin.coroutines.CoroutineContext
 
 class EncryptActivityViewModel : ViewModel(), CoroutineScope {
 
+    private val TAG = "EncryptActivityVM"
+
     private val repository : UserRepository = UserRepository.get()
 
     val loading = MutableLiveData<Boolean>()
@@ -23,7 +25,6 @@ class EncryptActivityViewModel : ViewModel(), CoroutineScope {
     val weakPassword = SingleLiveEvent<Unit>()
     val invalidPassword = SingleLiveEvent<Unit>()
     val firstRun : LiveData<Boolean> = map(repository.userStatus){
-        Log.i("Vasily", it.toString())
         it == UserState.FIRST_RUN
     }
 
@@ -57,8 +58,13 @@ class EncryptActivityViewModel : ViewModel(), CoroutineScope {
         }
     }
 
-    override fun onCleared() {
+    fun quit() {
         repository.onQuitEncryptState()
+        finish.postValue(Unit)
+    }
+
+    override fun onCleared() {
+        job.cancel()
         super.onCleared()
     }
 }

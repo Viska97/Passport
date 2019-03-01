@@ -61,4 +61,9 @@ class PasswordViewModel : ViewModel(), CoroutineScope {
         }
     }
 
+    override fun onCleared() {
+        job.cancel()
+        super.onCleared()
+    }
+
 }

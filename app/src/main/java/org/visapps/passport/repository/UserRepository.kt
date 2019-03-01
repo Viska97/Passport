@@ -25,6 +25,7 @@ import android.R.attr.key
 import androidx.lifecycle.LiveData
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import org.visapps.passport.data.InMemoryDatabase
 import org.visapps.passport.util.PasswordChangeResult
 import org.visapps.passport.util.checkPassword
 import javax.crypto.CipherInputStream
@@ -38,6 +39,7 @@ class UserRepository {
     private val datafile: File
     private val tempfile: File
     private var database : AppDatabase? = null
+    private var inMemoryDatabase : InMemoryDatabase? = null
     private var passphrase : String = ""
     private var userId : Int? = null
 
@@ -49,39 +51,39 @@ class UserRepository {
 
     suspend fun loadUser() : User? {
         userId?.let {
-            return withContext(Dispatchers.IO) {database?.userDao()?.getUserById(it)}
+            return withContext(Dispatchers.IO) {inMemoryDatabase?.getUserById(it)}
         }
         return null
     }
 
     suspend fun addUser(username: String) : Boolean  {
-        val user = withContext(Dispatchers.IO) {database?.userDao()?.getUserByName(username)}
+        val user = withContext(Dispatchers.IO) {inMemoryDatabase?.getUserByName(username)}
         user?.let {
             return false
         }
-        withContext(Dispatchers.IO) {database?.userDao()?.insertUser(User(0,username, ""))}
+        withContext(Dispatchers.IO) {inMemoryDatabase?.insertUser(User(0,username, ""))}
         return true
     }
 
     suspend fun updateBlocked(id : Int) = withContext(Dispatchers.IO){
-        val user = database?.userDao()?.getUserById(id)
+        val user = inMemoryDatabase?.getUserById(id)
         user?.let {
             it.blocked = !it.blocked
-            database?.userDao()?.update(it)
+            inMemoryDatabase?.update(it)
         }
     }
 
     suspend fun updateLimit(id : Int)= withContext(Dispatchers.IO){
-        val user = database?.userDao()?.getUserById(id)
+        val user = inMemoryDatabase?.getUserById(id)
         user?.let {
             it.limited = !it.limited
-            database?.userDao()?.update(it)
+            inMemoryDatabase?.update(it)
         }
     }
 
     suspend fun changePassword(oldPassword : String, newPassword : String) : PasswordChangeResult {
         userId?.let {
-            val user  = withContext(Dispatchers.IO) {database?.userDao()?.getUserById(it)}
+            val user  = withContext(Dispatchers.IO) {inMemoryDatabase?.getUserById(it)}
             user?.let {
                 if(!oldPassword.equals(it.password)){
                     return PasswordChangeResult.INVALID_CURRENT
@@ -91,7 +93,7 @@ class UserRepository {
                     return PasswordChangeResult.INVALID_NEW
                 }
                 it.password = newPassword
-                withContext(Dispatchers.IO) {database?.userDao()?.update(it)}
+                withContext(Dispatchers.IO) {inMemoryDatabase?.update(it)}
                 return PasswordChangeResult.SUCCESS
             }
         }
@@ -100,14 +102,14 @@ class UserRepository {
 
     suspend fun changePassword(newPassword : String) : PasswordChangeResult {
         userId?.let {
-            val user  = withContext(Dispatchers.IO) {database?.userDao()?.getUserById(it)}
+            val user  = withContext(Dispatchers.IO) {inMemoryDatabase?.getUserById(it)}
             user?.let {
                 val limited = it.limited
                 if(!checkPassword(newPassword, limited)){
                     return PasswordChangeResult.INVALID_NEW
                 }
                 it.password = newPassword
-                withContext(Dispatchers.IO) {database?.userDao()?.update(it)}
+                withContext(Dispatchers.IO) {inMemoryDatabase?.update(it)}
                 if(it.id == 1){
                     userStatus.postValue(UserState.ADMIN)
                 }
@@ -121,18 +123,18 @@ class UserRepository {
     }
 
     fun getUsers() : LiveData<List<User>> {
-        return database?.userDao()?.getUsers() ?: MutableLiveData<List<User>>()
+        return inMemoryDatabase?.getUsers() ?: MutableLiveData<List<User>>()
     }
 
     fun getUsername() : LiveData<String> {
         userId?.let {
-            return database?.userDao()?.getUserName(it) ?: MutableLiveData<String>()
+            return inMemoryDatabase?.getUserName(it) ?: MutableLiveData<String>()
         }
         return MutableLiveData<String>()
     }
 
     suspend fun logIn(username : String, password: String) : RequestResult {
-        val user = withContext(Dispatchers.IO){database?.userDao()?.getUserByName(username)}
+        val user = withContext(Dispatchers.IO){inMemoryDatabase?.getUserByName(username)}
         user?.let{
             if(it.password.equals(password)){
                 if(it.blocked){
@@ -163,7 +165,7 @@ class UserRepository {
 
     fun onQuitEncryptState() {
         if(userStatus.value == UserState.NOT_DECRYPTED || userStatus.value == UserState.FIRST_RUN){
-            userStatus.postValue(UserState.QUIT)
+            userStatus.value = UserState.QUIT
         }
     }
 
@@ -182,6 +184,11 @@ class UserRepository {
                 datafile.createNewFile()
                 database = Room.databaseBuilder(PassportApp.instance.applicationContext, AppDatabase::class.java, tempfile.absolutePath).build()
                 database?.userDao()?.insertUser(User(0,"admin", ""))
+                database?.let {
+                    inMemoryDatabase = InMemoryDatabase(it.userDao().getAll())
+                }
+                database?.close()
+                encryptDatabase()
                 userStatus.postValue(UserState.NOT_AUTHENTICATED)
                 Log.i(TAG, "Database decrypted")
                 return@withContext true
@@ -190,6 +197,11 @@ class UserRepository {
                 val success = decryptDatabase()
                 if(success){
                     database = Room.databaseBuilder(PassportApp.instance.applicationContext, AppDatabase::class.java, tempfile.absolutePath).build()
+                    database?.let {
+                        inMemoryDatabase = InMemoryDatabase(it.userDao().getAll())
+                    }
+                    database?.close()
+                    encryptDatabase()
                     userStatus.postValue(UserState.NOT_AUTHENTICATED)
                     Log.i(TAG, "Database decrypted")
                     return@withContext true
@@ -204,35 +216,31 @@ class UserRepository {
     }
 
     suspend fun closeDatabase() = withContext(Dispatchers.IO) {
-        if(database!= null){
+        inMemoryDatabase?.let {
             if(userStatus.value != UserState.IN_PROGRESS ){
                 userStatus.postValue(UserState.IN_PROGRESS)
+                decryptDatabase()
+                database = Room.databaseBuilder(PassportApp.instance.applicationContext, AppDatabase::class.java, tempfile.absolutePath).build()
+                database?.userDao()?.insertUsers(it.getAll())
                 database?.close()
                 Log.i(TAG, "Database closed")
                 encryptDatabase()
+                inMemoryDatabase = null
                 database = null
                 passphrase = ""
                 userId = null
                 updateStatus()
             }
         }
-        else{
-            updateStatus()
-        }
+        updateStatus()
     }
 
     private fun updateStatus() {
-        if(tempfile.exists()){
-            database = Room.databaseBuilder(PassportApp.instance.applicationContext, AppDatabase::class.java, tempfile.absolutePath).build()
-            userStatus.postValue(UserState.NOT_AUTHENTICATED)
+        if(datafile.exists()) {
+            userStatus.postValue(UserState.NOT_DECRYPTED)
         }
         else{
-            if(datafile.exists()) {
-                userStatus.postValue(UserState.NOT_DECRYPTED)
-            }
-            else{
-                userStatus.postValue(UserState.FIRST_RUN)
-            }
+            userStatus.postValue(UserState.FIRST_RUN)
         }
     }
 

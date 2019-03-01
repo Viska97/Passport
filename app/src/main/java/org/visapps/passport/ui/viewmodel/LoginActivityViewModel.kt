@@ -64,6 +64,7 @@ class LoginActivityViewModel : ViewModel(), CoroutineScope {
         GlobalScope.launch {
             repository.onQuitLogInState()
         }
+        job.cancel()
         super.onCleared()
     }
 }
