@@ -31,7 +31,7 @@
     <string name="cancel">Отмена</string>
     <string name="user">Пользователь</string>
     <string name="admin">Администратор</string>
-    <string name="welcome">Добро пожаловать,%1$s!</string>
+    <string name="welcome">Добро пожаловать, %1$s!</string>
     <string name="password_limit">Ограничение на пароль</string>
     <string name="username_exists">Имя пользователя занято</string>
     <string name="user_added">Пользователь добавлен</string>
@@ -47,7 +47,8 @@
     <string name="invalid_master_password">Неверный мастер-пароль!</string>
     <string name="title_activity_about">О приложении</string>
     <string name="development">Vasily M (ИДб-15-14, вариант 14)</string>
-    <string name="viewongithub">Посмотреть профиль на Github</string>
+    <string name="version">Версия: %1$s</string>
+    <string name="view_on_github">Посмотреть репозиторий на Github</string>
     <string name="quit">Выйти из профиля?</string>
     <string name="change">Сменить</string>
     <string name="title_activity_change_password">Смена пароля</string>

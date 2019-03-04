@@ -14,5 +14,4 @@ class PassportApp : Application() {
         super.onCreate()
     }
 
-
 }

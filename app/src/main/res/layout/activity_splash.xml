@@ -7,12 +7,11 @@
         android:layout_height="match_parent"
         tools:context=".ui.activity.SplashActivity">
 
-
     <ImageView
             android:layout_width="150dp"
             android:layout_height="150dp"
             android:layout_gravity="center"
             android:tint="@android:color/white"
-            app:srcCompat="@drawable/ic_lock_black_24dp"
-    />
+            app:srcCompat="@drawable/ic_lock_black_24dp"/>
+
 </FrameLayout>

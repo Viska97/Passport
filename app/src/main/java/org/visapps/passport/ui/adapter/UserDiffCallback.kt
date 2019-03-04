@@ -19,5 +19,4 @@ class UserDiffCallback(private val oldList: List<User>,
         return oldList[oldItemPosition] == newList[newItemPosition]
     }
 
-
 }

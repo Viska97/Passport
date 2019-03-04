@@ -1,6 +1,5 @@
 package org.visapps.passport.ui.viewmodel
 
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations.map
@@ -11,12 +10,10 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import org.visapps.passport.repository.UserRepository
 import org.visapps.passport.util.SingleLiveEvent
-import org.visapps.passport.util.UserState
+import org.visapps.passport.util.UserStatus
 import kotlin.coroutines.CoroutineContext
 
 class EncryptActivityViewModel : ViewModel(), CoroutineScope {
-
-    private val TAG = "EncryptActivityVM"
 
     private val repository : UserRepository = UserRepository.get()
 
@@ -25,7 +22,7 @@ class EncryptActivityViewModel : ViewModel(), CoroutineScope {
     val weakPassword = SingleLiveEvent<Unit>()
     val invalidPassword = SingleLiveEvent<Unit>()
     val firstRun : LiveData<Boolean> = map(repository.userStatus){
-        it == UserState.FIRST_RUN
+        it == UserStatus.FIRST_RUN
     }
 
     override val coroutineContext: CoroutineContext
@@ -59,7 +56,7 @@ class EncryptActivityViewModel : ViewModel(), CoroutineScope {
     }
 
     fun quit() {
-        repository.onQuitEncryptState()
+        repository.quitEncryptState()
         finish.postValue(Unit)
     }
 
@@ -67,4 +64,5 @@ class EncryptActivityViewModel : ViewModel(), CoroutineScope {
         job.cancel()
         super.onCleared()
     }
+
 }

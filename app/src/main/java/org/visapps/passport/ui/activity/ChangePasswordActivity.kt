@@ -2,7 +2,6 @@ package org.visapps.passport.ui.activity
 
 import android.app.Activity
 import android.os.Bundle
-import com.google.android.material.snackbar.Snackbar
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
@@ -14,7 +13,7 @@ import org.visapps.passport.ui.viewmodel.ChangePasswordViewModel
 import org.visapps.passport.util.afterTextChanged
 import org.visapps.passport.util.toVisibility
 
-class ChangePassword : AppCompatActivity() {
+class ChangePasswordActivity : AppCompatActivity() {
 
     private lateinit var viewModel : ChangePasswordViewModel
 
@@ -31,6 +30,9 @@ class ChangePassword : AppCompatActivity() {
             fieldlayout.visibility = toVisibility(!it)
             progressBar.visibility = toVisibility(it)
         })
+        viewModel.passwordsDoNotMatch.observe(this, Observer<Unit> {
+            password_layout_repeat.error = getString(R.string.passwords_not_match)
+        })
         viewModel.weakPassword.observe(this, Observer<Unit> {
             password_layout.error = getString(R.string.weak_password)
         })
@@ -41,13 +43,16 @@ class ChangePassword : AppCompatActivity() {
             finish()
         })
         change.setOnClickListener {
-            viewModel.changePassword(password.text.toString())
+            viewModel.changePassword(password.text.toString(), repeat_password.text.toString())
         }
         cancel.setOnClickListener {
             viewModel.logOut()
         }
         password.afterTextChanged {
             password_layout.error = null
+        }
+        repeat_password.afterTextChanged {
+            password_layout_repeat.error = null
         }
     }
 

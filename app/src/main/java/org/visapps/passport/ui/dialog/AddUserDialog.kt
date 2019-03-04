@@ -1,4 +1,4 @@
-package org.visapps.passport.ui.fragment
+package org.visapps.passport.ui.dialog
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -18,9 +18,13 @@ import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 import org.visapps.passport.util.afterTextChanged
 
-class NewUserDialog : DialogFragment() {
+class AddUserDialog : DialogFragment() {
 
-    val TAG = "NewUserDialog"
+    companion object {
+        fun newInstance() = AddUserDialog()
+    }
+
+    val TAG = "AddUserDialog"
 
     private lateinit var viewModel: NewUserViewModel
     private lateinit var fieldlayout : LinearLayout
@@ -32,7 +36,7 @@ class NewUserDialog : DialogFragment() {
 
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        val view = inflater.inflate(R.layout.newuser_dialog, container, false)
+        val view = inflater.inflate(R.layout.add_user_dialog, container, false)
         fieldlayout = view.findViewById(R.id.fieldlayout)
         progressBar = view.findViewById(R.id.progressBar)
         add = view.findViewById(R.id.add)
@@ -74,4 +78,5 @@ class NewUserDialog : DialogFragment() {
             ViewGroup.LayoutParams.MATCH_PARENT,
             ViewGroup.LayoutParams.WRAP_CONTENT)
     }
+
 }

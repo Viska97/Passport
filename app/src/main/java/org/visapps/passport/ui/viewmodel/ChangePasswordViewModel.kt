@@ -1,10 +1,8 @@
 package org.visapps.passport.ui.viewmodel
 
-import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import kotlinx.coroutines.*
-import org.visapps.passport.data.User
 import org.visapps.passport.repository.UserRepository
 import org.visapps.passport.util.PasswordChangeResult
 import org.visapps.passport.util.SingleLiveEvent
@@ -16,6 +14,7 @@ class ChangePasswordViewModel : ViewModel(), CoroutineScope {
 
     val logOut = SingleLiveEvent<Unit>()
     val loading = MutableLiveData<Boolean>()
+    val passwordsDoNotMatch = SingleLiveEvent<Unit>()
     val weakPassword = SingleLiveEvent<Unit>()
     val limitedPassword = SingleLiveEvent<Unit>()
     val success = SingleLiveEvent<Unit>()
@@ -29,8 +28,12 @@ class ChangePasswordViewModel : ViewModel(), CoroutineScope {
         loading.postValue(false)
     }
 
-    fun changePassword(password : String) {
+    fun changePassword(password : String, confirmPassword : String) {
         if(password.isEmpty()){
+            return
+        }
+        if(!password.equals(confirmPassword)){
+            passwordsDoNotMatch.postValue(Unit)
             return
         }
         if(password.length !in 8..50){

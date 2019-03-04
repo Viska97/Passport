@@ -50,5 +50,4 @@ class NewUserViewModel : ViewModel(), CoroutineScope {
         super.onCleared()
     }
 
-
 }

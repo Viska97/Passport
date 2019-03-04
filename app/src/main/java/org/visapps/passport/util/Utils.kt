@@ -5,7 +5,7 @@ import android.text.TextWatcher
 import android.view.View
 import android.widget.EditText
 
-enum class UserState{
+enum class UserStatus{
     NEED_CHANGE,
     QUIT,
     IN_PROGRESS,
@@ -16,7 +16,7 @@ enum class UserState{
     ADMIN
 }
 
-enum class RequestResult{
+enum class AuthResult{
     SUCCESS,
     INVALID_PASSWORD,
     BLOCKED,
@@ -29,22 +29,22 @@ enum class PasswordChangeResult{
     INVALID_NEW
 }
 
-fun toVisibility(constraint : Boolean): Int {
-    return if (constraint) {
-        View.VISIBLE
-    } else {
-        View.GONE
-    }
-}
-
 fun checkPassword(password : String, limited : Boolean) : Boolean {
-    val passwordPattern = "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[\\-+=*/])(?=\\S+$).{4,}$"
+    val passwordPattern = "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[\\-+=*/])(?=\\S+$).{8,}$"
     val passwordMatcher = Regex(passwordPattern)
     if(limited){
         return password.length in 8..50 && passwordMatcher.find(password) != null
     }
     else{
         return password.length in 8..50
+    }
+}
+
+fun toVisibility(constraint : Boolean): Int {
+    return if (constraint) {
+        View.VISIBLE
+    } else {
+        View.GONE
     }
 }
 

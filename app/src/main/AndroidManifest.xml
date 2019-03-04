@@ -11,7 +11,7 @@
             android:supportsRtl="true"
             android:theme="@style/AppTheme">
         <activity
-                android:name=".ui.activity.ChangePassword"
+                android:name=".ui.activity.ChangePasswordActivity"
                 android:label="@string/title_activity_change_password"
                 android:theme="@style/AppTheme">
         </activity>

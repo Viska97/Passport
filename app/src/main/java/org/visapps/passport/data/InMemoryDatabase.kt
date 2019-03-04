@@ -61,6 +61,4 @@ class InMemoryDatabase(initial : List<User>) {
         usersLiveData.postValue(users)
     }
 
-
-
 }

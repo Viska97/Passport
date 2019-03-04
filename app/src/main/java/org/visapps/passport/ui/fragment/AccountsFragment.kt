@@ -12,6 +12,8 @@ import kotlinx.android.synthetic.main.accounts_fragment.*
 import org.visapps.passport.R
 import org.visapps.passport.data.User
 import org.visapps.passport.ui.adapter.UsersAdapter
+import org.visapps.passport.ui.dialog.AddUserDialog
+import org.visapps.passport.ui.viewmodel.AccountsViewModel
 import org.visapps.passport.util.toVisibility
 
 class AccountsFragment : Fragment() {
@@ -34,7 +36,7 @@ class AccountsFragment : Fragment() {
         viewModel = ViewModelProviders.of(this).get(AccountsViewModel::class.java)
         initAdapter()
         fab.setOnClickListener {
-            val dialog = NewUserDialog()
+            val dialog = AddUserDialog.newInstance()
             dialog.show(childFragmentManager, dialog.TAG)
         }
     }

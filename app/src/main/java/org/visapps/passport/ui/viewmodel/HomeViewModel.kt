@@ -1,4 +1,4 @@
-package org.visapps.passport.ui.fragment
+package org.visapps.passport.ui.viewmodel
 
 import androidx.lifecycle.ViewModel;
 import org.visapps.passport.repository.UserRepository

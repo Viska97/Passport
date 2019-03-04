@@ -1,4 +1,4 @@
-package org.visapps.passport.ui.fragment
+package org.visapps.passport.ui.viewmodel
 
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel;

@@ -1,9 +1,6 @@
 package org.visapps.passport.ui.activity
 
-import android.content.Intent
 import android.os.Bundle
-import android.util.Log
-import com.google.android.material.snackbar.Snackbar
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
@@ -17,8 +14,6 @@ import org.visapps.passport.util.afterTextChanged
 import org.visapps.passport.util.toVisibility
 
 class EncryptActivity : AppCompatActivity() {
-
-    private val TAG = "EncryptActivity"
 
     private lateinit var viewModel: EncryptActivityViewModel
 

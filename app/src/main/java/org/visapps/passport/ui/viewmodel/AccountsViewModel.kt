@@ -1,4 +1,4 @@
-package org.visapps.passport.ui.fragment
+package org.visapps.passport.ui.viewmodel
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Transformations.map
@@ -8,7 +8,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import org.visapps.passport.repository.UserRepository
-import org.visapps.passport.util.UserState
+import org.visapps.passport.util.UserStatus
 import kotlin.coroutines.CoroutineContext
 
 class AccountsViewModel : ViewModel(), CoroutineScope {
@@ -17,7 +17,7 @@ class AccountsViewModel : ViewModel(), CoroutineScope {
 
     val users = repository.getUsers()
     val admin : LiveData<Boolean> = map(repository.userStatus){
-        it == UserState.ADMIN
+        it == UserStatus.ADMIN
     }
 
     override val coroutineContext: CoroutineContext

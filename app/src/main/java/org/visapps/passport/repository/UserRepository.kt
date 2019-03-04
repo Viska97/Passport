@@ -1,6 +1,5 @@
 package org.visapps.passport.repository
 
-import android.annotation.SuppressLint
 import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.room.Room
@@ -9,44 +8,48 @@ import kotlinx.coroutines.withContext
 import org.visapps.passport.PassportApp
 import org.visapps.passport.data.AppDatabase
 import org.visapps.passport.data.User
-import org.visapps.passport.util.RequestResult
-import org.visapps.passport.util.UserState
+import org.visapps.passport.util.AuthResult
+import org.visapps.passport.util.UserStatus
 import java.io.File
-import java.io.FileInputStream
-import java.io.FileOutputStream
 import java.lang.Exception
-import java.nio.charset.Charset
-import java.security.MessageDigest
-import java.util.*
-import javax.crypto.Cipher
-import javax.crypto.CipherOutputStream
-import javax.crypto.spec.SecretKeySpec
-import android.R.attr.key
 import androidx.lifecycle.LiveData
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
+import org.visapps.passport.data.CryptoProvider
 import org.visapps.passport.data.InMemoryDatabase
 import org.visapps.passport.util.PasswordChangeResult
 import org.visapps.passport.util.checkPassword
-import javax.crypto.CipherInputStream
-import javax.crypto.spec.IvParameterSpec
-
 
 class UserRepository {
 
-    val userStatus = MutableLiveData<UserState>()
+    val userStatus = MutableLiveData<UserStatus>()
 
     private val datafile: File
     private val tempfile: File
+    private val cryptoProvider : CryptoProvider
     private var database : AppDatabase? = null
     private var inMemoryDatabase : InMemoryDatabase? = null
-    private var passphrase : String = ""
     private var userId : Int? = null
+
+    companion object {
+
+        private val TAG = UserRepository::class.java.name
+        private const val DATAFILE_NAME = "passport.db"
+        private const val TEMPFILE_NAME = "temp.db"
+
+        @Volatile
+        private var instance: UserRepository? = null
+
+        fun get() =
+            instance ?: synchronized(this) {
+                instance ?: UserRepository().also { instance = it }
+            }
+
+    }
 
     init {
         datafile = File(PassportApp.instance.applicationContext.getExternalFilesDir(""), DATAFILE_NAME)
         tempfile = File(PassportApp.instance.applicationContext.getExternalFilesDir(""), TEMPFILE_NAME)
         updateStatus()
+        cryptoProvider = CryptoProvider()
     }
 
     suspend fun loadUser() : User? {
@@ -111,10 +114,10 @@ class UserRepository {
                 it.password = newPassword
                 withContext(Dispatchers.IO) {inMemoryDatabase?.update(it)}
                 if(it.id == 1){
-                    userStatus.postValue(UserState.ADMIN)
+                    userStatus.postValue(UserStatus.ADMIN)
                 }
                 else{
-                    userStatus.postValue(UserState.USER)
+                    userStatus.postValue(UserStatus.USER)
                 }
                 return PasswordChangeResult.SUCCESS
             }
@@ -133,53 +136,57 @@ class UserRepository {
         return MutableLiveData<String>()
     }
 
-    suspend fun logIn(username : String, password: String) : RequestResult {
+    suspend fun logIn(username : String, password: String) : AuthResult {
         val user = withContext(Dispatchers.IO){inMemoryDatabase?.getUserByName(username)}
         user?.let{
             if(it.password.equals(password)){
                 if(it.blocked){
-                    return RequestResult.BLOCKED
+                    return AuthResult.BLOCKED
                 }
                 userId = it.id
                 val limited = it.limited
                 if(!checkPassword(it.password, limited)){
-                    userStatus.postValue(UserState.NEED_CHANGE)
+                    userStatus.postValue(UserStatus.NEED_CHANGE)
                 }
                 else if(it.id == 1){
-                    userStatus.postValue(UserState.ADMIN)
+                    userStatus.postValue(UserStatus.ADMIN)
                 }
                 else{
-                    userStatus.postValue(UserState.USER)
+                    userStatus.postValue(UserStatus.USER)
                 }
-                return RequestResult.SUCCESS
+                return AuthResult.SUCCESS
             }
-            return RequestResult.INVALID_PASSWORD
+            return AuthResult.INVALID_PASSWORD
         }
-        return RequestResult.NOT_FOUND
+        return AuthResult.NOT_FOUND
     }
 
     fun logOut() {
         userId = null
-        userStatus.postValue(UserState.NOT_AUTHENTICATED)
+        userStatus.postValue(UserStatus.NOT_AUTHENTICATED)
     }
 
-    fun onQuitEncryptState() {
-        if(userStatus.value == UserState.NOT_DECRYPTED || userStatus.value == UserState.FIRST_RUN){
-            userStatus.value = UserState.QUIT
+    fun quitAllStates(){
+        updateStatus()
+    }
+
+    fun quitEncryptState() {
+        if(userStatus.value == UserStatus.NOT_DECRYPTED || userStatus.value == UserStatus.FIRST_RUN){
+            userStatus.value = UserStatus.QUIT
         }
     }
 
-    suspend fun onQuitLogInState() = withContext(Dispatchers.IO){
-        if(userStatus.value == UserState.NOT_AUTHENTICATED){
+    suspend fun quitLogInState() = withContext(Dispatchers.IO){
+        if(userStatus.value == UserStatus.NOT_AUTHENTICATED){
             closeDatabase()
         }
     }
 
     suspend fun initDatabase(password : String) : Boolean  {
         return withContext(Dispatchers.IO){
-            userStatus.postValue(UserState.IN_PROGRESS)
-            passphrase = password
+            userStatus.postValue(UserStatus.IN_PROGRESS)
             tempfile.createNewFile()
+            cryptoProvider.setPassphrase(password)
             if(!datafile.exists()){
                 datafile.createNewFile()
                 database = Room.databaseBuilder(PassportApp.instance.applicationContext, AppDatabase::class.java, tempfile.absolutePath).build()
@@ -188,13 +195,13 @@ class UserRepository {
                     inMemoryDatabase = InMemoryDatabase(it.userDao().getAll())
                 }
                 database?.close()
-                encryptDatabase()
-                userStatus.postValue(UserState.NOT_AUTHENTICATED)
+                cryptoProvider.encryptDatabase(datafile, tempfile)
+                userStatus.postValue(UserStatus.NOT_AUTHENTICATED)
                 Log.i(TAG, "Database decrypted")
                 return@withContext true
             }
             else{
-                val success = decryptDatabase()
+                val success = cryptoProvider.decryptDatabase(datafile, tempfile)
                 if(success){
                     try{
                         database = Room.databaseBuilder(PassportApp.instance.applicationContext, AppDatabase::class.java, tempfile.absolutePath).build()
@@ -202,8 +209,8 @@ class UserRepository {
                             inMemoryDatabase = InMemoryDatabase(it.userDao().getAll())
                         }
                         database?.close()
-                        encryptDatabase()
-                        userStatus.postValue(UserState.NOT_AUTHENTICATED)
+                        cryptoProvider.encryptDatabase(datafile, tempfile)
+                        userStatus.postValue(UserStatus.NOT_AUTHENTICATED)
                         Log.i(TAG, "Database decrypted")
                         return@withContext true
                     }
@@ -212,7 +219,7 @@ class UserRepository {
                         Log.i(TAG, "Corrupted database file")
                     }
                 }
-                userStatus.postValue(UserState.NOT_DECRYPTED)
+                userStatus.postValue(UserStatus.NOT_DECRYPTED)
                 Log.i(TAG, "Database not decrypted")
                 return@withContext false
             }
@@ -221,17 +228,17 @@ class UserRepository {
 
     suspend fun closeDatabase() = withContext(Dispatchers.IO) {
         inMemoryDatabase?.let {
-            if(userStatus.value != UserState.IN_PROGRESS ){
-                userStatus.postValue(UserState.IN_PROGRESS)
-                decryptDatabase()
+            if(userStatus.value != UserStatus.IN_PROGRESS ){
+                userStatus.postValue(UserStatus.IN_PROGRESS)
+                cryptoProvider.decryptDatabase(datafile, tempfile)
                 database = Room.databaseBuilder(PassportApp.instance.applicationContext, AppDatabase::class.java, tempfile.absolutePath).build()
                 database?.userDao()?.insertUsers(it.getAll())
                 database?.close()
                 Log.i(TAG, "Database closed")
-                encryptDatabase()
+                cryptoProvider.encryptDatabase(datafile, tempfile)
                 inMemoryDatabase = null
                 database = null
-                passphrase = ""
+                cryptoProvider.resetPassphrase()
                 userId = null
                 updateStatus()
             }
@@ -241,88 +248,11 @@ class UserRepository {
 
     private fun updateStatus() {
         if(datafile.exists()) {
-            userStatus.postValue(UserState.NOT_DECRYPTED)
+            userStatus.postValue(UserStatus.NOT_DECRYPTED)
         }
         else{
-            userStatus.postValue(UserState.FIRST_RUN)
+            userStatus.postValue(UserStatus.FIRST_RUN)
         }
     }
 
-    private fun encryptDatabase() : Boolean {
-        try{
-            val fis = FileInputStream(tempfile)
-            val fos = FileOutputStream(datafile, false)
-            var key = (SALT + passphrase).toByteArray(Charset.forName("UTF-8"))
-            val md5 = MessageDigest.getInstance("MD5")
-            key = md5.digest(key)
-            key = Arrays.copyOf(key, 16)
-            val sks = SecretKeySpec(key, "AES")
-            val cipher = Cipher.getInstance("AES/CBC/PKCS5Padding")
-            cipher.init(Cipher.ENCRYPT_MODE, sks, IvParameterSpec(IV))
-            val cos = CipherOutputStream(fos, cipher)
-            var b: Int? = null
-            val d = ByteArray(8)
-            while ({ b =  fis.read(d); b }() != -1) {
-                b?.let {
-                    cos.write(d, 0, it)
-                }
-            }
-            cos.flush()
-            cos.close()
-            fis.close()
-            tempfile.delete()
-            return true
-        }
-        catch(e : Exception){
-            return false
-        }
-    }
-
-    private fun decryptDatabase() : Boolean {
-        try{
-            val fis = FileInputStream(datafile)
-            val fos = FileOutputStream(tempfile, false)
-            var key = (SALT + passphrase).toByteArray(Charset.forName("UTF-8"))
-            val md5 = MessageDigest.getInstance("MD5")
-            key = md5.digest(key)
-            key = Arrays.copyOf(key, 16)
-            val sks = SecretKeySpec(key, "AES")
-            val cipher = Cipher.getInstance("AES/CBC/PKCS5Padding")
-            cipher.init(Cipher.DECRYPT_MODE, sks, IvParameterSpec(IV))
-            val cis = CipherInputStream(fis, cipher)
-            var b: Int? = null
-            val d = ByteArray(8)
-            while ({ b =  cis.read(d); b }() != -1) {
-                b?.let {
-                    fos.write(d, 0, it)
-                }
-            }
-            fos.flush();
-            fos.close();
-            cis.close();
-            return true
-        }
-        catch(e : Exception){
-            tempfile.delete()
-            return false
-        }
-    }
-
-    companion object {
-
-        private val TAG = UserRepository::class.java.name
-        private const val DATAFILE_NAME = "passport.db"
-        private const val TEMPFILE_NAME = "temp.db"
-        private const val SALT = "qK~r)Sg6dB3tzBoJtuCKT+#~m||"
-        private val IV = byteArrayOf(96, 55, 72, 66, 120, 126, 30, 19, 51, 48 , 52, 45, 44, 10,	22,	5)
-
-        @Volatile
-        private var instance: UserRepository? = null
-
-        fun get() =
-            instance ?: synchronized(this) {
-                instance ?: UserRepository().also { instance = it }
-            }
-
-    }
 }

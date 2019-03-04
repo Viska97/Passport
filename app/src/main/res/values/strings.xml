@@ -49,7 +49,8 @@
     <string name="title_activity_login">Authorization</string>
     <string name="title_activity_about">About application</string>
     <string name="development">Vasily M (IDB-15-14, variant 14)</string>
-    <string name="viewongithub">View project on Github</string>
+    <string name="version">Version: %1$s</string>
+    <string name="view_on_github">View project repository on Github</string>
     <string name="title_activity_change_password">Change password</string>
 
 </resources>

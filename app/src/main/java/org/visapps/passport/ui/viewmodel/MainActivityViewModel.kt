@@ -1,13 +1,12 @@
 package org.visapps.passport.ui.viewmodel
 
 import androidx.lifecycle.MediatorLiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import kotlinx.coroutines.*
 import org.visapps.passport.data.User
 import org.visapps.passport.repository.UserRepository
 import org.visapps.passport.util.SingleLiveEvent
-import org.visapps.passport.util.UserState
+import org.visapps.passport.util.UserStatus
 import kotlin.coroutines.CoroutineContext
 
 class MainActivityViewModel() : ViewModel(), CoroutineScope {
@@ -28,8 +27,8 @@ class MainActivityViewModel() : ViewModel(), CoroutineScope {
         user.addSource(userStatus) {processUser(it)};
     }
 
-    private fun processUser(status : UserState) {
-        if(status == UserState.ADMIN || status == UserState.USER){
+    private fun processUser(status : UserStatus) {
+        if(status == UserStatus.ADMIN || status == UserStatus.USER){
             this.launch(context = coroutineContext) {
                 val result = repository.loadUser()
                 result?.let {
@@ -50,4 +49,5 @@ class MainActivityViewModel() : ViewModel(), CoroutineScope {
         job.cancel()
         super.onCleared()
     }
+
 }

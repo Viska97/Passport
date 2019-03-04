@@ -11,6 +11,7 @@ import androidx.lifecycle.Observer
 import kotlinx.android.synthetic.main.password_fragment.*
 
 import org.visapps.passport.R
+import org.visapps.passport.ui.viewmodel.PasswordViewModel
 import org.visapps.passport.util.afterTextChanged
 import org.visapps.passport.util.toVisibility
 

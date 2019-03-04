@@ -3,28 +3,24 @@ package org.visapps.passport.ui.activity
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import com.google.android.material.navigation.NavigationView
 import androidx.core.view.GravityCompat
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
-import android.view.Menu
 import android.view.MenuItem
 import android.widget.TextView
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProviders
 import com.afollestad.materialdialogs.MaterialDialog
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.app_bar_main.*
-import kotlinx.android.synthetic.main.nav_header_main.view.*
 import org.visapps.passport.R
 import org.visapps.passport.data.User
 import org.visapps.passport.ui.fragment.AccountsFragment
 import org.visapps.passport.ui.fragment.HomeFragment
 import org.visapps.passport.ui.fragment.PasswordFragment
 import org.visapps.passport.ui.viewmodel.MainActivityViewModel
-import org.visapps.passport.util.UserState
+import org.visapps.passport.util.UserStatus
 
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
 
@@ -56,10 +52,10 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         viewModel.user.observe(this, Observer<User>{
             name.text = it.name
         })
-        viewModel.userStatus.observe(this, Observer<UserState>{
+        viewModel.userStatus.observe(this, Observer<UserStatus>{
             when(it){
-                UserState.USER -> type.text = getString(R.string.user)
-                UserState.ADMIN -> type.text = getString(R.string.admin)
+                UserStatus.USER -> type.text = getString(R.string.user)
+                UserStatus.ADMIN -> type.text = getString(R.string.admin)
                 else -> openSplashActivity()
             }
         })
@@ -122,11 +118,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         return true
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
-        //viewModel.logOut()
-    }
-
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
         outState.putInt("selectedFragment", selectedFragment)
@@ -135,17 +126,18 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     private fun changeFragment() {
         when(selectedFragment){
             FRAGMENT_HOME -> {
-                supportFragmentManager.beginTransaction().replace(R.id.main_frame, HomeFragment()).commit()
+                supportFragmentManager.beginTransaction().replace(R.id.main_frame, HomeFragment.newInstance()).commit()
                 supportActionBar?.title = getString(R.string.home)
             }
             FRAGMENT_ACCOUNTS -> {
-                supportFragmentManager.beginTransaction().replace(R.id.main_frame, AccountsFragment()).commit()
+                supportFragmentManager.beginTransaction().replace(R.id.main_frame, AccountsFragment.newInstance()).commit()
                 supportActionBar?.title = getString(R.string.users_list)
             }
             FRAGMENT_PASSWORD -> {
-                supportFragmentManager.beginTransaction().replace(R.id.main_frame, PasswordFragment()).commit()
+                supportFragmentManager.beginTransaction().replace(R.id.main_frame, PasswordFragment.newInstance()).commit()
                 supportActionBar?.title = getString(R.string.change_password)
             }
         }
     }
+
 }

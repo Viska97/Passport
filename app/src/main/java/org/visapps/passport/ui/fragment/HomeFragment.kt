@@ -11,6 +11,7 @@ import androidx.lifecycle.Observer
 import kotlinx.android.synthetic.main.home_fragment.*
 
 import org.visapps.passport.R
+import org.visapps.passport.ui.viewmodel.HomeViewModel
 
 class HomeFragment : Fragment() {
 
