@@ -6,18 +6,17 @@ import java.io.FileOutputStream
 import java.lang.Exception
 import java.nio.charset.Charset
 import java.security.MessageDigest
-import java.util.*
 import javax.crypto.Cipher
 import javax.crypto.CipherInputStream
 import javax.crypto.CipherOutputStream
 import javax.crypto.spec.IvParameterSpec
 import javax.crypto.spec.SecretKeySpec
 
-class CryptoProvider {
+class CryptoProvider(private val keysProvider: KeysProvider) {
 
     companion object {
-        private const val SALT = "qK~r)Sg6dB3tzBoJtuCKT+#~m||"
-        private val IV = byteArrayOf(96, 55, 72, 66, 120, 126, 30, 19, 51, 48 , 52, 45, 44, 10,	22,	5)
+        private const val SALT = "SALT"
+        private const val IV = "IV"
     }
 
     private var passphrase : String = ""
@@ -34,13 +33,15 @@ class CryptoProvider {
         try{
             val fis = FileInputStream(tempfile)
             val fos = FileOutputStream(datafile, false)
-            var key = (SALT + passphrase).toByteArray(Charset.forName("UTF-8"))
+            val salt = keysProvider.createKey(SALT)
+            var key = passphrase.toByteArray(Charset.forName("UTF-8")).plus(salt)
             val md5 = MessageDigest.getInstance("MD5")
             key = md5.digest(key)
-            key = Arrays.copyOf(key, 16)
+            key = key.copyOf(16)
             val sks = SecretKeySpec(key, "AES")
             val cipher = Cipher.getInstance("AES/CBC/PKCS5Padding")
-            cipher.init(Cipher.ENCRYPT_MODE, sks, IvParameterSpec(IV))
+            val iv = keysProvider.createKey(IV)
+            cipher.init(Cipher.ENCRYPT_MODE, sks, IvParameterSpec(iv))
             val cos = CipherOutputStream(fos, cipher)
             var b: Int? = null
             val d = ByteArray(8)
@@ -65,13 +66,15 @@ class CryptoProvider {
         try{
             val fis = FileInputStream(datafile)
             val fos = FileOutputStream(tempfile, false)
-            var key = (SALT + passphrase).toByteArray(Charset.forName("UTF-8"))
+            val salt = keysProvider.getKey(SALT)
+            var key = passphrase.toByteArray(Charset.forName("UTF-8")).plus(salt)
             val md5 = MessageDigest.getInstance("MD5")
             key = md5.digest(key)
-            key = Arrays.copyOf(key, 16)
+            key = key.copyOf(16)
             val sks = SecretKeySpec(key, "AES")
             val cipher = Cipher.getInstance("AES/CBC/PKCS5Padding")
-            cipher.init(Cipher.DECRYPT_MODE, sks, IvParameterSpec(IV))
+            val iv = keysProvider.getKey(IV)
+            cipher.init(Cipher.DECRYPT_MODE, sks, IvParameterSpec(iv))
             val cis = CipherInputStream(fis, cipher)
             var b: Int? = null
             val d = ByteArray(8)
@@ -90,6 +93,5 @@ class CryptoProvider {
             return false
         }
     }
-
 
 }

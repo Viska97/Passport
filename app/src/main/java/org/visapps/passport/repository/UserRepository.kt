@@ -6,15 +6,12 @@ import androidx.room.Room
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.visapps.passport.PassportApp
-import org.visapps.passport.data.AppDatabase
-import org.visapps.passport.data.User
 import org.visapps.passport.util.AuthResult
 import org.visapps.passport.util.UserStatus
 import java.io.File
 import java.lang.Exception
 import androidx.lifecycle.LiveData
-import org.visapps.passport.data.CryptoProvider
-import org.visapps.passport.data.InMemoryDatabase
+import org.visapps.passport.data.*
 import org.visapps.passport.util.PasswordChangeResult
 import org.visapps.passport.util.checkPassword
 
@@ -49,7 +46,7 @@ class UserRepository {
         datafile = File(PassportApp.instance.applicationContext.getExternalFilesDir(""), DATAFILE_NAME)
         tempfile = File(PassportApp.instance.applicationContext.getExternalFilesDir(""), TEMPFILE_NAME)
         updateStatus()
-        cryptoProvider = CryptoProvider()
+        cryptoProvider = CryptoProvider(KeysProvider(PassportApp.instance))
     }
 
     suspend fun loadUser() : User? {
